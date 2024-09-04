@@ -371,7 +371,9 @@ class MoeBlock(nn.Module):
                         rhs=kernel,
                         group_sizes=group_sizes,
                         preferred_element_type=jnp.bfloat16,
-                        tiling=tile_size)
+                        tiling=tile_size, 
+                        quant=True,
+                        )
 
       if hs_shape[0] % pad_length:
         output = output[:hs_shape[0]]
