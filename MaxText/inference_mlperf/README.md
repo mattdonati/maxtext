@@ -46,8 +46,8 @@ cd /inference_mlperf4.1
 cd /
 git clone git@github.com:google/maxtext.git
 cd maxtext
-git checkout offline_inf
-cd maxtext/MaxText
+bash setup.sh
+cd MaxText
 ```
 
 ## Checkpoint generation
@@ -75,8 +75,8 @@ export SAVE_QUANT_PARAMS_PATH=gs://${USER}-bkt/quantized/llama2-70b-chat
 ```
 # Set appropriate tokenizer path. For example, LLama2 models tokenizer.llama2. You can find 
 # other tokenizers under maxtext/assets/ directory.
-export TOKENIZER_PATH=maxtext/assets/tokenizer.llama2
-cd maxtext && \
+export TOKENIZER_PATH=/maxtext/assets/tokenizer.llama2
+cd /maxtext && \
 python MaxText/decode.py MaxText/configs/base.yml tokenizer_path=${TOKENIZER_PATH} load_parameters_path=${LOAD_PARAMS_PATH} max_prefill_predict_length=1024 max_target_length=2048 model_name=llama2-70b ici_fsdp_parallelism=1 ici_autoregressive_parallelism=1 ici_tensor_parallelism=-1 scan_layers=false weight_dtype=bfloat16 per_device_batch_size=11 attention=dot_product quantization=int8 save_quantized_params_path=${SAVE_QUANT_PARAMS_PATH}
 ```
 
@@ -89,7 +89,6 @@ huggingface-cli login
 
 ## Loadgen settings
 ```
-cd Google/code/llama2-70b/tpu_v5e_8_jetstream_maxtext/scripts/
 export API_URL=0.0.0.0:9000
 export DATA_DISK_DIR=/loadgen_run_data
 export DATASET_TYPE=full # for calibration run, DATASET_TYPE=calibration
@@ -97,17 +96,12 @@ export DATASET_TYPE=full # for calibration run, DATASET_TYPE=calibration
 export MODEL_NAME=llama70b
 export TOTAL_SAMPLE_COUNT=24576 # for calibration run, TOTAL_SAMPLE_COUNT=1000
 export LOG_INTERVAL=1000
-export BATCH_SIZE_EXP=8
 export USER_CONFIG=user.conf
 ```
 
-## Offline Setup
+## Run offline benchmarks
 ```
-cd /
-git clone git@github.com:google/maxtext.git
-cd maxtext
-git checkout offline_inf
-cd maxtext/MaxText
+cd /maxtext/MaxText/inference_mlperf
 
 # For v5e use
 export BATCH_AND_PREFILL_LEN=“256,80|512,40|1024,20”
@@ -115,41 +109,21 @@ export BATCH_AND_PREFILL_LEN=“256,80|512,40|1024,20”
 # For v6 use
 export BATCH_AND_PREFILL_LEN=“256,216|512,108|1024,54”
 
-# Set appropriate tokenizer path. For example, LLama2 models tokenizer.llama2. You can find 
-# other tokenizers under maxtext/assets/ directory.
-export TOKENIZER_PATH=maxtext/assets/tokenizer.llama2
-
 export MAXENGINE_ARGS="model_name=llama2-70b tokenizer_path=${TOKENIZER_PATH}  quantization=int8 quantize_kvcache=True load_parameters_path=${SAVE_QUANT_PARAMS_PATH} checkpoint_is_quantized=True compute_axis_order=0,1,2,3 ar_cache_axis_order=0,1,2,3"
 ```
 
 ## Run offline performance
 
 ```
-bash ./llama_offline_performance_run.sh
+bash ./llama_offline_run.sh -p
 ```
 
 ## Run offline accuracy
 ```
-bash ./llama_offline_accuracy_run.sh
+bash ./llama_offline_run.sh -a
 ```
 
 ## Run offline audit
 ```
-bash ./llama_offline_audit_run.sh
+bash ./llama_offline_run.sh -d
 ```
-
-## Run server performance
-```
-bash ./generate_server_performance_run.sh
-```
-
-## Run server accuracy
-```
-bash ./generate_server_accuracy_run.sh
-```
-
-## Run server audit
-```
-bash ./generate_server_audit_run.sh
-```
-
