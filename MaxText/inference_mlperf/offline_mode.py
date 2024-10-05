@@ -494,7 +494,7 @@ def main(argv):
   )
   log.info("Starting Benchmark run")
   lg.StartTestWithLogSettings(lgSUT, qsl, settings, log_settings, FLAGS.audit_conf)
-  log.info(f"query counts {[len(q) for q in sut._query_batches]}")
+  log.info(f"query counts {[len(sut._query_batches[q]) for q in sut._query_batches]}")
   log.info("Run Completed!")
   log.info("Destroying SUT...")
   lg.DestroySUT(lgSUT)
