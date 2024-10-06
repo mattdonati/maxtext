@@ -749,6 +749,10 @@ def main(argv: Sequence[str]) -> None:
   # if "xla_tpu_spmd_rng_bit_generator_unsafe" not in os.environ.get("LIBTPU_INIT_ARGS", ""):
   #   os.environ["LIBTPU_INIT_ARGS"] = os.environ.get("LIBTPU_INIT_ARGS", "") + " --xla_tpu_spmd_rng_bit_generator_unsafe=true"
   os.environ["XLA_FLAGS"] =  " --xla_force_host_platform_device_count=8"
+  os.environ['JAX_PLATFORM_NAME'] = 'cpu'
+  os.environ['JAX_NUM_DEVICES'] = '4'
+  os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
   pyconfig.initialize(argv)
   max_utils.print_system_information()
   config = pyconfig.config
