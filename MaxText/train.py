@@ -748,7 +748,12 @@ def main(argv: Sequence[str]) -> None:
   # os.environ["TF_CPP_MIN_LOG_LEVEL"] = "0"
   # if "xla_tpu_spmd_rng_bit_generator_unsafe" not in os.environ.get("LIBTPU_INIT_ARGS", ""):
   #   os.environ["LIBTPU_INIT_ARGS"] = os.environ.get("LIBTPU_INIT_ARGS", "") + " --xla_tpu_spmd_rng_bit_generator_unsafe=true"
-  os.environ["XLA_FLAGS"] =  " --xla_force_host_platform_device_count=8"
+
+  flags = os.environ.get("XLA_FLAGS", "")
+  flags += " --xla_force_host_platform_device_count=4"  # Simulate 8 devices
+  # Enforce CPU-only execution
+  os.environ["CUDA_VISIBLE_DEVICES"] = ""
+  os.environ["XLA_FLAGS"] = flags
   os.environ['JAX_PLATFORM_NAME'] = 'cpu'
   os.environ['JAX_NUM_DEVICES'] = '4'
   os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
