@@ -281,7 +281,7 @@ class _HyperParameters:
     validate_no_keys_overwritten_twice(keys_from_env_and_command_line, keys_from_model)
 
     # We initialize the jax distributed system here because it must be done before device backend is initialized.
-    max_utils.maybe_initialize_jax_distributed_system(raw_keys)
+    #max_utils.maybe_initialize_jax_distributed_system(raw_keys)
 
     if raw_keys["jax_cache_dir"]:
       compilation_cache.set_cache_dir(os.path.expanduser(raw_keys["jax_cache_dir"]))
@@ -377,7 +377,7 @@ class _HyperParameters:
       raw_keys["using_pipeline_parallelism"] = False
 
     # Write raw_keys to GCS before type conversions
-    max_utils.write_config_raw_keys_for_gcs(raw_keys)
+    #max_utils.write_config_raw_keys_for_gcs(raw_keys)
 
     # Type conversions
     raw_keys["dtype"] = jax.numpy.dtype(raw_keys["dtype"])
@@ -529,11 +529,6 @@ def calculate_global_batch_sizes(raw_keys):
 
 
 def get_num_target_devices(raw_keys):
-  compile_topology = accelerator_to_spec_map.get_system_characteristics(raw_keys.get("compile_topology", ""))
-  if compile_topology is not None:
-    devices_per_slice = compile_topology.devices_per_slice
-    return int(devices_per_slice * raw_keys["compile_topology_num_slices"])
-  else:
     return len(jax.devices())
 
 
