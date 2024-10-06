@@ -759,7 +759,7 @@ def main(argv: Sequence[str]) -> None:
   os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
   pyconfig.initialize(argv)
-  max_utils.print_system_information()
+ 
   config = pyconfig.config
   validate_train_config(config)
   os.environ["TFDS_DATA_DIR"] = config.dataset_path
