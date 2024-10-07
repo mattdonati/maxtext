@@ -349,26 +349,18 @@ class TfdsCheckpointHandler():
     ):
         """Saves iterator passed as item or args.item to directory"""
         item = item or args.item  # for compatibility with older Orbax API
-        # Create a TensorFlow checkpoint for the NumpyIterator
         checkpoint = tf.train.Checkpoint(iterator=item)
-        options = tf.train.CheckpointOptions(enable_async=args.enable_async)
         # Align checkpoint count with that of checkpoint manager
         checkpoint.save_counter.assign(args.step - 1)
-        checkpoint.save(directory / f'process_{jax.process_index()}-of-{jax.process_count()}' / 'ckpt', options=options)
+        checkpoint.save(directory / f'process_{jax.process_index()}-of-{jax.process_count()}' / 'ckpt')
 
     def restore(self, directory: epath.Path, item: Optional[tf.data.NumpyIterator] = None,
                 args: Any = None) -> tf.data.NumpyIterator:
         """Restores the iterator from the checkpoint in `directory`."""
         item = item or args.item  # for compatibility with older Orbax API
-
-        # Create a TensorFlow checkpoint object for the NumpyIterator
         checkpoint = tf.train.Checkpoint(iterator=item)
-
-        # Restore the checkpoint state from the specified directory
         restore_path = tf.train.latest_checkpoint(directory / f'process_{jax.process_index()}-of-{jax.process_count()}')
-
         checkpoint.restore(restore_path).expect_partial()
-
         return item
 
     def structure(self, directory: epath.Path) -> Any:
@@ -394,8 +386,7 @@ try:
     @dataclasses.dataclass
     class TfdsCheckpointSave(ocp.args.CheckpointArgs):
         item: Any
-        step: int  # accept the step counter of the orbax checkpoint manager to update tf.data.Checkpoint
-        enable_async: bool
+        step: int  
 
     @ocp.args.register_with_handler(TfdsCheckpointHandler, for_restore=True)
     @dataclasses.dataclass
