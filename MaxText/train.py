@@ -238,7 +238,7 @@ def save_checkpoint(
         items=orbax.checkpoint.args.PyTreeSave(
           item=state, save_args=save_args, ocdbt_target_data_file_size=chunk_byte_size
         ),
-        iter=TfdsCheckpointSave(item=data_iterator.local_iterator, step=step),
+        iter=checkpointing.TfdsCheckpointSave(item=data_iterator.local_iterator, step=step, enable_async=config.async_checkpointing),
       ),
     )
   else:
