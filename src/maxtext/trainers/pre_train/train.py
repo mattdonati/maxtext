@@ -802,7 +802,7 @@ def train_loop(config, recorder, state=None):
   start_step = get_first_step(model, state)  # this is the start_step for training
   train_utils.validate_completed_steps(start_step, config.steps)
 
-  if isinstance(model, nn.Module):
+  if config.enable_diloco or isinstance(model, nn.Module):
     jit_model = model
   elif config.enable_diloco:
     # state is the DiLoCoTrainState; `model` is already the TrainStateNNX graphdef the inner step needs.
@@ -852,7 +852,7 @@ def train_loop(config, recorder, state=None):
   metric_logger_instance = metric_logger.MetricLogger(config=config, learning_rate_schedule=learning_rate_schedule)
 
   # Write train config params, num model params, and XLA flags to tensorboard
-  if isinstance(model, nn.Module):
+  if config.enable_diloco or isinstance(model, nn.Module):
     setup_params = state.params
   elif config.enable_diloco:
     setup_params = state.params  # DiLoCoTrainState.params: the outer (global) params

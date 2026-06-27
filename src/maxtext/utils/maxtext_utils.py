@@ -39,6 +39,7 @@ from maxtext.common.common_types import (
 from maxtext.configs import pyconfig
 from maxtext.configs import types
 from maxtext.multimodal import processor as mm_processor
+from maxtext.trainers.diloco import diloco
 from maxtext.utils import elastic_utils
 from maxtext.utils import gcs_utils
 from maxtext.utils import max_logging
@@ -1690,6 +1691,14 @@ def setup_initial_state(
       config, mesh, init_state_fn, is_training
   )
 
+  # Build abstract DiLoCo state structure so checkpoint restoration expects the full
+  # DiLoCoTrainState layout (outer optimizer + replica state) when DiLoCo is enabled.
+  abstract_restore_state = unboxed_abstract_state
+  if config.enable_diloco:
+    abstract_restore_state, _, _ = diloco.build_abstract_diloco_state(
+        config, unboxed_abstract_state, state_mesh_shardings, mesh
+    )
+
   # Initialization
   with nn_partitioning.axis_rules(config.logical_axis_rules):
     restored, raw_params = checkpointing.load_state_if_possible(
@@ -1698,7 +1707,7 @@ def setup_initial_state(
         config.load_parameters_path,
         config.load_full_state_path,
         config.checkpoint_storage_concurrent_gb,
-        unboxed_abstract_state,
+        abstract_restore_state,
         config.enable_single_replica_ckpt_restoring,
         config.dataset_type,
         use_ocdbt=config.checkpoint_storage_use_ocdbt,
