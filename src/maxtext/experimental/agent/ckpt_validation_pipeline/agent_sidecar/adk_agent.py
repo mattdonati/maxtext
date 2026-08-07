@@ -44,9 +44,29 @@ def _run_script(script_name: str, args: list[str]) -> str:
 
 # --- ANALYST TOOLS ---
 
+def _resolve_path(filepath: str) -> str:
+  """Helper to resolve paths either absolutely or relative to the repo root."""
+  path = Path(filepath)
+  if path.is_absolute() or path.exists():
+    return str(path)
+  
+  # Check relative to repo root (6 levels up: src/maxtext/experimental/agent/ckpt_validation_pipeline/agent_sidecar)
+  repo_root = Path(__file__).resolve().parents[6]
+  
+  # Sometimes the agent provides 'maxtext/layers/...' and sometimes 'src/maxtext/layers/...'
+  # We can check a few combinations if it doesn't exist directly.
+  root_path = repo_root / path
+  if root_path.exists():
+    return str(root_path)
+  if (repo_root / "src" / path).exists():
+    return str(repo_root / "src" / path)
+  
+  return str(root_path)
+
 
 def read_local_file(filepath: str) -> str:
   """Reads a Python file from the local MaxText repository to inspect the architecture."""
+  filepath = _resolve_path(filepath)
   try:
     with open(filepath, "r", encoding="utf-8") as f:
       return f.read()
@@ -76,6 +96,7 @@ def run_shape_analysis(model_name: str, run_id: str) -> str:
 
 def patch_file(filepath: str, old_text: str, new_text: str) -> str:
   """Replaces specific lines of code in a file. Must provide the exact old text to replace."""
+  filepath = _resolve_path(filepath)
   try:
     with open(filepath, "r", encoding="utf-8") as f:
       content = f.read()
@@ -258,6 +279,7 @@ def run_agent_workflow(context: dict, failure_log: str):
     model_id = os.environ.get("OVERWATCH_MODEL_ID", "gemini-3.1-pro-preview-customtools")
 
   maxtext_branch = context.get("maxtext_branch") or os.environ.get("MAXTEXT_BRANCH", "main")
+  os.environ["MAXTEXT_BRANCH"] = maxtext_branch
   hf_ref_code_url = context.get("hf_ref_code_url") or os.environ.get("HF_REF_CODE_URL", "")
   hf_config_url = context.get("hf_config_url") or os.environ.get("HF_CONFIG_URL", "")
   maxtext_overrides = context.get("maxtext_overrides", {})
@@ -344,7 +366,7 @@ def run_agent_workflow(context: dict, failure_log: str):
   except Exception as e:
     logger.warning(f"Overseer surveillance loop skipped ({e}). Proceeding with primary plan...")
 
-  max_agent_calls = int(os.environ.get("MAX_AGENT_CALLS", "35"))
+  max_agent_calls = int(os.environ.get("MAX_AGENT_CALLS", "15"))
 
   remediation_level = plan_json.get("remediation_level", "level_2_code")
   config_overrides = plan_json.get("config_overrides", {})
