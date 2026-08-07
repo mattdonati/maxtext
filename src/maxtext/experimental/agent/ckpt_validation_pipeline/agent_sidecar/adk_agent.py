@@ -115,6 +115,7 @@ def patch_file(filepath: str, old_text: str, new_text: str) -> str:
 
 def run_linters(filepath: str) -> str:
   """Runs pyink (indentation=2, length=122) and pylint on the modified file to enforce standards."""
+  filepath = _resolve_path(filepath)
   return _run_script("run_linters.py", ["--file", filepath])
 
 
