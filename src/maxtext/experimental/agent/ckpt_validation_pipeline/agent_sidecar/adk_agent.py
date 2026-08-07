@@ -502,7 +502,7 @@ if __name__ == "__main__":
     
     mock_context = {
         "remediation_key": "local-test-run-001",
-        "maxtext_branch": "test-level-2-patch",
+        "maxtext_branch": "test-local-agent-run",
         "maxtext_model_name": "gemma2-2b",
         "airflow_dag_id": "dag_verify_forward_compile",
         "airflow_run_id": "manual__2026-08-06T05:30:51.770827+00:00",
