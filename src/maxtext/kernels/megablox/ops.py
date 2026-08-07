@@ -330,7 +330,7 @@ def _fwd_prepare_rhs_scale(rhs: qpl.QArray, transpose_rhs: bool = False) -> jnp.
 def _fwd_prepare_lhs_scale(quantization_rule: qwix.QtRule | None) -> jax.Array | None:
   """Extracts the static LHS (activation) scale for the GMM v2 forward pass.
 
-  GMM v2 only supports lhs_scale from symmetric fixed range calibration 
+  GMM v2 only supports lhs_scale from symmetric fixed range calibration
   (Or if lhs_scale is None, calculate dynamic scale internally).
 
   Enforces a default (1, 1) shape for per-tensor quantization kernels.
