@@ -289,13 +289,15 @@ def run_agent_workflow(context: dict, failure_log: str):
   if api_key:
     logger.info("Initializing GenAI Client using GEMINI_API_KEY (1B token quota)...")
     client = genai.Client(api_key=api_key)
-    model_id = os.environ.get("OVERWATCH_MODEL_ID", "gemini-3.1-pro-preview-customtools")
+    # model_id = os.environ.get("OVERWATCH_MODEL_ID", "gemini-3.1-pro-preview-customtools")
+    model_id = os.environ.get("OVERWATCH_MODEL_ID", "gemini-3.1-flash")
   else:
     logger.info("Initializing GenAI Client using Vertex AI default credentials...")
     client = genai.Client(
         vertexai=True, project="tpu-prod-env-multipod", location=os.environ.get("VERTEX_LOCATION", "global")
     )
-    model_id = os.environ.get("OVERWATCH_MODEL_ID", "gemini-3.1-pro-preview-customtools")
+    # model_id = os.environ.get("OVERWATCH_MODEL_ID", "gemini-3.1-pro-preview-customtools")
+    model_id = os.environ.get("OVERWATCH_MODEL_ID", "gemini-3.1-flash")
 
   maxtext_branch = context.get("maxtext_branch") or os.environ.get("MAXTEXT_BRANCH", "main")
   os.environ["MAXTEXT_BRANCH"] = maxtext_branch
