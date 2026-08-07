@@ -506,17 +506,20 @@ def run_agent_workflow(context: dict, failure_log: str):
       write_remediation_report,
       send_alert_email,
   ]
-  from monitor.state_manager import record_attempt
-  record_attempt(
-      run_id,
-      status="verification_started",
-      branch=new_branch,
-      diagnosis=plan_json.get("diagnosis", ""),
-      remediation_level=plan_json.get("remediation_level", "unknown"),
-      airflow_dag_id=airflow_dag_id,
-      airflow_task_id=airflow_task_id,
-      airflow_run_id=airflow_run_id,
-  )
+  try:
+    from monitor.state_manager import record_attempt
+    record_attempt(
+        run_id,
+        status="verification_started",
+        branch=new_branch,
+        diagnosis=plan_json.get("diagnosis", ""),
+        remediation_level=plan_json.get("remediation_level", "unknown"),
+        airflow_dag_id=airflow_dag_id,
+        airflow_task_id=airflow_task_id,
+        airflow_run_id=airflow_run_id,
+    )
+  except ModuleNotFoundError:
+    logger.warning("record_attempt skipped (No module named 'monitor.state_manager')")
 
   verifier_chat = client.chats.create(
       model=model_id,
